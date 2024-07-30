@@ -23,4 +23,5 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/chat.png
+    - assets/images/user_icon.png
   

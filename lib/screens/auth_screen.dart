@@ -64,16 +64,17 @@ class _AuthScreenState extends State<AuthScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
-              'assets/images/chat.png',
-              width: 200,
-            ),
-            const SizedBox(height: 40),
+            if (_isLogin)
+              Image.asset(
+                'assets/images/chat.png',
+                width: 200,
+              ),
             Form(
                 key: _form,
                 child: Column(
                   children: [
                     if (!_isLogin) const UserImagePicker(),
+                    const SizedBox(height: 80),
                     TextFormField(
                       decoration: InputDecoration(
                         labelText: 'Email',
