@@ -68,13 +68,14 @@ class _AuthScreenState extends State<AuthScreen> {
               Image.asset(
                 'assets/images/chat.png',
                 width: 200,
+                height: 200,
               ),
             Form(
                 key: _form,
                 child: Column(
                   children: [
                     if (!_isLogin) const UserImagePicker(),
-                    const SizedBox(height: 80),
+                    const SizedBox(height: 50),
                     TextFormField(
                       decoration: InputDecoration(
                         labelText: 'Email',
