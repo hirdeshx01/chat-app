@@ -21,8 +21,9 @@ class AuthScreen extends StatefulWidget {
 class _AuthScreenState extends State<AuthScreen> {
   final _form = GlobalKey<FormState>();
   var _isLogin = true;
-  String _enteredEmail = '';
-  String _enteredPassword = '';
+  var _enteredEmail = '';
+  var _enteredPassword = '';
+  var _enteredUsername = '';
   File? _selectedImage;
   var _isAuthenticating = false;
 
@@ -73,7 +74,7 @@ class _AuthScreenState extends State<AuthScreen> {
             .doc(userCredentials.user!.uid)
             .set(
           {
-            'username': 'to be done...',
+            'username': _enteredUsername,
             'email': _enteredEmail,
             'image_url': imageURL,
           },
@@ -145,6 +146,35 @@ class _AuthScreenState extends State<AuthScreen> {
                       },
                       onSaved: (newValue) => _enteredEmail = newValue!,
                     ),
+                    if (!_isLogin)
+                      Column(
+                        children: [
+                          const SizedBox(height: 20),
+                          TextFormField(
+                            decoration: InputDecoration(
+                              labelText: 'Username',
+                              border: const OutlineInputBorder(),
+                              filled: true,
+                              fillColor: Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerHigh,
+                              prefixIcon: const Icon(Icons.person),
+                            ),
+                            enableSuggestions: false,
+                            validator: (value) {
+                              if (value == null ||
+                                  value.isEmpty ||
+                                  value.trim().length < 4) {
+                                return 'Please enter atleast 4 characters';
+                              }
+                              return null;
+                            },
+                            onSaved: (newValue) {
+                              _enteredUsername = newValue!;
+                            },
+                          ),
+                        ],
+                      ),
                     const SizedBox(height: 20),
                     TextFormField(
                       decoration: InputDecoration(
