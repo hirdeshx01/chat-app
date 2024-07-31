@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:chat_app/widgets/user_image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 final _firbase = FirebaseAuth.instance;
@@ -18,11 +21,21 @@ class _AuthScreenState extends State<AuthScreen> {
   var _isLogin = true;
   String _enteredEmail = '';
   String _enteredPassword = '';
+  File? _selectedImage;
 
   void _submit() async {
     final isValid = _form.currentState!.validate();
 
     if (!isValid) {
+      return;
+    } else if (!_isLogin && _selectedImage == null) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please add an image. Click circular avatar."),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
       return;
     } else {
       _form.currentState!.save();
@@ -35,10 +48,18 @@ class _AuthScreenState extends State<AuthScreen> {
           password: _enteredPassword,
         );
       } else {
-        await _firbase.createUserWithEmailAndPassword(
+        final userCredentials = await _firbase.createUserWithEmailAndPassword(
           email: _enteredEmail,
           password: _enteredPassword,
         );
+
+        final storageRef = FirebaseStorage.instance
+            .ref()
+            .child('user_avatar_images')
+            .child('${userCredentials.user!.uid}.jpg');
+
+        await storageRef.putFile(_selectedImage!);
+        storageRef.getDownloadURL();
       }
     } on FirebaseAuthException catch (e) {
       if (mounted) {
@@ -74,7 +95,12 @@ class _AuthScreenState extends State<AuthScreen> {
                 key: _form,
                 child: Column(
                   children: [
-                    if (!_isLogin) const UserImagePicker(),
+                    if (!_isLogin)
+                      UserImagePicker(
+                        onPickImage: (pickedImage) {
+                          _selectedImage = pickedImage;
+                        },
+                      ),
                     const SizedBox(height: 50),
                     TextFormField(
                       decoration: InputDecoration(

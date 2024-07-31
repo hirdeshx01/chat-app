@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class UserImagePicker extends StatefulWidget {
-  const UserImagePicker({super.key});
+  const UserImagePicker({super.key, required this.onPickImage});
+
+  final void Function(File pickedImage) onPickImage;
 
   @override
   State<UserImagePicker> createState() {
@@ -37,7 +39,7 @@ class _UserImagePickerState extends State<UserImagePicker> {
       onTap: _pickImage,
       child: CircleAvatar(
         radius: 100,
-        backgroundColor: Theme.of(context).colorScheme.onInverseSurface,
+        backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
         foregroundImage:
             _pickedImageFile != null ? FileImage(_pickedImageFile!) : null,
         child: const Icon(
