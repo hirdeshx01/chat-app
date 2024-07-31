@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'package:flutter/material.dart';
 
 import 'package:chat_app/widgets/user_image_picker.dart';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/material.dart';
 
 final _firbase = FirebaseAuth.instance;
 
@@ -22,6 +24,7 @@ class _AuthScreenState extends State<AuthScreen> {
   String _enteredEmail = '';
   String _enteredPassword = '';
   File? _selectedImage;
+  var _isAuthenticating = false;
 
   void _submit() async {
     final isValid = _form.currentState!.validate();
@@ -42,6 +45,10 @@ class _AuthScreenState extends State<AuthScreen> {
     }
 
     try {
+      setState(() {
+        _isAuthenticating = true;
+      });
+
       if (_isLogin) {
         await _firbase.signInWithEmailAndPassword(
           email: _enteredEmail,
@@ -59,7 +66,18 @@ class _AuthScreenState extends State<AuthScreen> {
             .child('${userCredentials.user!.uid}.jpg');
 
         await storageRef.putFile(_selectedImage!);
-        storageRef.getDownloadURL();
+        final imageURL = await storageRef.getDownloadURL();
+
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userCredentials.user!.uid)
+            .set(
+          {
+            'username': 'to be done...',
+            'email': _enteredEmail,
+            'image_url': imageURL,
+          },
+        );
       }
     } on FirebaseAuthException catch (e) {
       if (mounted) {
@@ -73,6 +91,9 @@ class _AuthScreenState extends State<AuthScreen> {
           ),
         );
       }
+      setState(() {
+        _isAuthenticating = false;
+      });
     }
   }
 
@@ -146,32 +167,35 @@ class _AuthScreenState extends State<AuthScreen> {
                   ],
                 )),
             const SizedBox(height: 20),
-            FilledButton(
-              onPressed: () {
-                _submit();
-              },
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.maxFinite, 45),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+            _isAuthenticating
+                ? const CircularProgressIndicator()
+                : FilledButton(
+                    onPressed: () {
+                      _submit();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(double.maxFinite, 45),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Text(
+                      _isLogin ? 'Login' : 'Sign Up',
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                  ),
+            if (!_isAuthenticating)
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    _isLogin = !_isLogin;
+                  });
+                },
+                child: Text(
+                  _isLogin ? 'Create an account' : 'Already have an account',
+                  style: const TextStyle(fontSize: 18),
                 ),
               ),
-              child: Text(
-                _isLogin ? 'Login' : 'Sign Up',
-                style: const TextStyle(fontSize: 18),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  _isLogin = !_isLogin;
-                });
-              },
-              child: Text(
-                _isLogin ? 'Create an account' : 'Already have an account',
-                style: const TextStyle(fontSize: 18),
-              ),
-            ),
           ],
         ),
       ),
