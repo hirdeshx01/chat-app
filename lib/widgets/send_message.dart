@@ -50,7 +50,7 @@ class _SendMessageState extends State<SendMessage> {
       padding: const EdgeInsets.all(16.0),
       child: Row(
         children: [
-          Flexible(
+          Expanded(
             child: TextField(
               controller: _messageController,
               textCapitalization: TextCapitalization.sentences,
