@@ -42,7 +42,7 @@ class ChatBubble extends StatelessWidget {
             ),
           ),
         Container(
-          margin: const EdgeInsets.symmetric(horizontal: 46),
+          margin: const EdgeInsets.symmetric(horizontal: 42),
           child: Row(
             mainAxisAlignment:
                 isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
@@ -76,7 +76,7 @@ class ChatBubble extends StatelessWidget {
                         bottomRight: const Radius.circular(16),
                       ),
                     ),
-                    constraints: const BoxConstraints(maxWidth: 240),
+                    constraints: const BoxConstraints(maxWidth: 270),
                     padding: const EdgeInsets.symmetric(
                       vertical: 10,
                       horizontal: 14,
