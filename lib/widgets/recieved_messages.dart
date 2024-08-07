@@ -1,4 +1,6 @@
+import 'package:chat_app/widgets/chat_bubble.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class RecievedMessages extends StatelessWidget {
@@ -6,6 +8,7 @@ class RecievedMessages extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser!;
     return StreamBuilder(
       stream: FirebaseFirestore.instance
           .collection('chat')
@@ -24,12 +27,33 @@ class RecievedMessages extends StatelessWidget {
         }
 
         final loadedMessages = snapshot.data!.docs;
+
         return ListView.builder(
           reverse: true,
           padding: const EdgeInsets.all(16.0),
           itemCount: loadedMessages.length,
           itemBuilder: (context, index) {
-            return Text(loadedMessages[index].data()['text']);
+            final messageData = loadedMessages[index].data();
+            final nextMessageData = index + 1 < loadedMessages.length
+                ? loadedMessages[index + 1].data()
+                : null;
+            final currentMessageUserId = messageData['userId'];
+            final nextMessageUserId =
+                nextMessageData != null ? nextMessageData['userId'] : null;
+
+            if (currentMessageUserId == nextMessageUserId) {
+              return ChatBubble.next(
+                message: messageData['text'],
+                isMe: currentMessageUserId == user.uid,
+              );
+            } else {
+              return ChatBubble.first(
+                userImage: messageData['userImage'],
+                username: messageData['username'],
+                message: messageData['text'],
+                isMe: currentMessageUserId == user.uid,
+              );
+            }
           },
         );
       },
