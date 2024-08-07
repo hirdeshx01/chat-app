@@ -26,7 +26,6 @@ class _SendMessageState extends State<SendMessage> {
       return;
     }
 
-    FocusScope.of(context).unfocus();
     _messageController.clear();
 
     final user = FirebaseAuth.instance.currentUser!;
